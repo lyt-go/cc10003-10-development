@@ -19,6 +19,7 @@ class ActionResult(BaseModel):
     ok: bool
     message: str
     entry: dict[str, Any] | None = None
+    extra: dict[str, Any] | None = None
 
 
 class EntryPayload(BaseModel):
@@ -76,6 +77,55 @@ class AbtestEntry(BaseModel):
     field_5: str | None = None  # 核心指标
     field_6: str | None = None  # 最小样本量
     field_7: str | None = None  # 预计周期
+    field_8: str | None = None  # 实验版本
+    field_9: str | None = None  # 结论版本
+    field_10: str | None = None  # 分析方案编号
+    field_11: str | None = None  # 分析输出编号
+    field_12: str | None = None  # 显著性结果
+    field_13: str | None = None  # 分析状态
+    field_14: list[str] | None = None  # 待补充分析项
+
+
+class ExperimentConclusionEntry(BaseModel):
+    """实验结论明细结构：只读快照，重复结项不新增。"""
+
+    field_0: str | None = None  # 结论编号
+    field_1: str | None = None  # 结论版本
+    field_2: str | None = None  # 核心指标
+    field_3: str | None = None  # 指标口径版本
+    field_4: str | None = None  # 样本范围
+    field_5: str | None = None  # 实际样本量
+    field_6: str | None = None  # 显著性结果
+    field_7: str | None = None  # 对比基准
+    field_8: str | None = None  # 实验版本
+
+
+class AnalysisOutputEntry(BaseModel):
+    """分析输出明细结构：换版后旧输出保留原版本。"""
+
+    field_0: str | None = None  # 输出编号
+    field_1: str | None = None  # 输出版本
+    field_2: str | None = None  # 结论版本
+    field_3: str | None = None  # 指标口径版本
+    field_4: str | None = None  # 样本范围
+    field_5: str | None = None  # 显著性结果
+    field_6: str | None = None  # 对比基准
+    field_7: str | None = None  # 状态
+    field_8: str | None = None  # 失效原因
+
+
+class AnalysisAuditEntry(BaseModel):
+    """审计记录明细结构：只追加，可按版本回查。"""
+
+    field_0: str | None = None  # 动作
+    field_1: str | None = None  # 结果
+    field_2: str | None = None  # 实验编号
+    field_3: str | None = None  # 实验版本
+    field_4: str | None = None  # 结论版本
+    field_5: str | None = None  # 分析方案编号
+    field_6: str | None = None  # 分析输出编号
+    field_7: str | None = None  # 说明
+    field_8: str | None = None  # 时间
 
 class AnalysisEntry(BaseModel):
     """分析方案明细结构。"""
@@ -88,6 +138,14 @@ class AnalysisEntry(BaseModel):
     field_5: str | None = None  # 显著性阈值
     field_6: str | None = None  # 输出图表类型
     field_7: str | None = None  # 调度周期
+    field_8: str | None = None  # 核心指标
+    field_9: str | None = None  # 关联实验编号
+    field_10: str | None = None  # 方案版本
+    field_11: str | None = None  # 结论版本
+    field_12: str | None = None  # 指标口径版本
+    field_13: str | None = None  # 分析状态
+    field_14: str | None = None  # 分析输出状态
+    field_15: list[str] | None = None  # 待补充分析项
 
 class DashboardEntry(BaseModel):
     """看板页面明细结构。"""

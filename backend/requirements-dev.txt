@@ -1,0 +1,3 @@
+-r requirements.txt
+# 验收用例用 FastAPI TestClient，依赖 httpx2；生产镜像不需要
+httpx2>=2.16

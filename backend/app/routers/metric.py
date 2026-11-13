@@ -30,6 +30,13 @@ def list_entries(
     return PageResult(items=items, total=total, page=page, size=size)
 
 
+@router.get("/export")
+def export_entries() -> dict[str, Any]:
+    """导出指标口径清单：返回当前过滤条件下的全量数据。"""
+    items, total = service.list_entries(page=1, size=10000)
+    return {"module": "metric", "total": total, "items": items}
+
+
 @router.get("/{entry_id}", response_model=dict)
 def get_entry(entry_id: int) -> dict:
     """读取单条指标定义明细；不存在时给出可读的错误说明。"""
@@ -56,6 +63,32 @@ def run_action(entry_id: int, payload: EntryPayload) -> ActionResult:
     if entry is None:
         return ActionResult(ok=False, message=message)
     return ActionResult(ok=True, message=message, entry=entry)
+
+
+@router.post("/{entry_id}/versions", response_model=ActionResult)
+def create_version(entry_id: int, payload: EntryPayload) -> ActionResult:
+    """登记同一指标的新口径版本。
+
+    换版只新增一行，不改写旧行；已经沉淀的结论与分析输出继续引用旧版本，
+    直到实验重新结项并重新计算显著性结果。
+    """
+    base = service.get_entry(entry_id)
+    if base is None:
+        raise HTTPException(status_code=404, detail=f"指标定义 {entry_id} 不存在或已归档")
+    values = dict(payload.values)
+    values.pop("id", None)
+    for field in ("指标编号", "指标名称", "计算公式"):
+        if not str(values.get(field) or "").strip():
+            values[field] = base.get(field)
+    values["口径版本"] = str(values.get("口径版本") or "").strip() or None
+    entry, missing = service.create_entry(values)
+    if missing:
+        return ActionResult(ok=False, message=f"缺少必填字段：{'、'.join(missing)}")
+    return ActionResult(
+        ok=True,
+        message=f"指标 {base.get('指标编号')} 已登记新口径版本 {entry.get('口径版本')}",
+        entry=entry,
+    )
 
 
 @router.get("/export")
